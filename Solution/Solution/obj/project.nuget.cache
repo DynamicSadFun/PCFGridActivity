@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "n1Gj76AVG9rR5WucXK7YgjLGBEXxzl+TnAEDoBjMn2rHW8U4quuth/71Ygk2PVSRHljAF0uGD2I30rshNZTngw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ValentinGasenko\\Desktop\\work\\PCF GridActivity\\Solution\\Solution\\Solution.cdsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ValentinGasenko\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.0\\microsoft.netframework.referenceassemblies.1.0.0.nupkg.sha512",
+    "C:\\Users\\ValentinGasenko\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net462\\1.0.0\\microsoft.netframework.referenceassemblies.net462.1.0.0.nupkg.sha512",
+    "C:\\Users\\ValentinGasenko\\.nuget\\packages\\microsoft.powerapps.msbuild.pcf\\1.6.6\\microsoft.powerapps.msbuild.pcf.1.6.6.nupkg.sha512",
+    "C:\\Users\\ValentinGasenko\\.nuget\\packages\\microsoft.powerapps.msbuild.solution\\1.6.6\\microsoft.powerapps.msbuild.solution.1.6.6.nupkg.sha512"
+  ],
+  "logs": []
+}

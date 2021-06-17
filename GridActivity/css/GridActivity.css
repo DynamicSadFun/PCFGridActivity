@@ -1,0 +1,57 @@
+.PCFGridActivity\.GridActivity img {
+    max-width: -webkit-fill-available;
+    min-width: 1px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+#activitiesTable {
+    cursor: default;
+    border-spacing: 0;
+    font-family: "Segoe UI Regular", SegoeUI, "Segoe UI";
+    font-size: 15px;
+    white-space: nowrap;
+    color: #000;
+    line-height: 32px;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: hidden;
+    background: rgb(255, 255, 255);
+    vertical-align: middle;
+    text-align: left;                
+    border: 1px solid #CCC;
+    border-collapse: collapse;
+    outline: none !important;
+}
+
+/*
+#activitiesTable th {
+    font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 12px;
+    font-weight: normal;
+    height: 14px;
+    width: auto;
+    flex-shrink: 1;
+    background-color: transparent;
+    font-style: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgb(110, 111, 119);
+    padding: 0px 0px; 
+    border-bottom: 2px solid #CCC;
+}*/
+
+#activitiesTable tr {
+    border: 1px solid #CCC;
+}
+
+#activitiesTable td {
+    border: none;
+    padding: 2px;
+}
