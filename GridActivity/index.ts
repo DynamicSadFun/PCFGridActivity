@@ -112,54 +112,6 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 			throw new Error("The array of entities must match the number of elements with the array of fields and array of parent names!");
 		}
 
-		// debugger;
-
-		// var fetchXml = `<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-		// 					<entity name="activitypointer">
-		// 					<attribute name="subject" />
-		// 					<attribute name="ownerid" />
-		// 					<attribute name="prioritycode" />
-		// 					<attribute name="regardingobjectid" />
-		// 					<attribute name="activitytypecode" />
-		// 					<attribute name="statecode" />
-		// 					<attribute name="scheduledstart" />
-		// 					<attribute name="scheduledend" />
-		// 					<attribute name="activityid" />
-		// 					<attribute name="instancetypecode" />
-		// 					<attribute name="community" />
-		// 					<attribute name="senton" />
-		// 					<attribute name="statuscode" />
-		// 					<order attribute="scheduledend" descending="false" />
-		// 					<filter type="and">
-		// 						<condition attribute="isregularactivity" operator="eq" value="1" />
-		// 					</filter>
-		// 					<link-entity name="systemuser" from="systemuserid" to="owninguser" visible="false" link-type="outer" alias="activitypointerowningusersystemusersystemuserid">
-		// 						<attribute name="internalemailaddress" />
-		// 					</link-entity>
-		// 					<link-entity name="email" from="activityid" to="activityid" visible="false" link-type="outer" alias="email_engagement">
-		// 						<attribute name="isemailfollowed" />
-		// 						<attribute name="lastopenedtime" />
-		// 						<attribute name="delayedemailsendtime" />
-		// 					</link-entity>
-		// 					</entity>
-		// 				</fetch>`;
-		// //"<fetch mapping='logical' count='3'><entity name='account'><attribute name='accountid'/><attribute name='name'/></entity></fetch>";
-		// fetchXml = "?fetchXml=" + encodeURIComponent(fetchXml);
-
-		// this._contextObj.webAPI.retrieveMultipleRecords("activitypointer", fetchXml).then(
-		// 	function success(result) {
-		// 		for (var i = 0; i < result.entities.length; i++) {
-		// 			console.log(result.entities[i]);
-		// 		}          
-		// 	},
-		// 	function (error) {
-		// 		console.log(error.message);
-		// 		// handle error conditions
-		// 	}
-		// );
-
-
-
 		// filter for Active rows
 		let stateCodeFilter = this._contextObj.parameters.ActiveOnly.raw == "1" ? "(statecode eq 0) and " : "";
 		let fields = columnsOnView.map(x => x['name']).toString().replace("regardingobjectid,",""); // except regarding for correct oData-query
@@ -180,18 +132,6 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 						tableRecordRow.addEventListener("click", instance.clickActivity.bind(instance));
 						tableRecordRow.setAttribute(RowRecordId, results[i]["activityid"]);
 						tableRecordRow.setAttribute(RowEntityName, results[i]["activitytypecode"]);
-						
-						//activitytypecode
-						// how to make the data display more versatile?
-						// get fetchXML from grid?
-						// https://docs.microsoft.com/en-us/powerapps/developer/model-driven-apps/clientapi/reference/grids/gridcontrol/getfetchxml
-						// columnsOnView.forEach(function (columnItem, index) {
-						// 	debugger;
-						// 	let tableRecordCell = document.createElement("td");
-						// 	tableRecordCell.innerText = results[i][columnItem.name];
-						// 	tableRecordRow.appendChild(tableRecordCell);
-						// });
-						// tableBody.appendChild(tableRecordRow);
 								
 						try {
 							let subject = document.createElement("td");
