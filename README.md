@@ -32,5 +32,8 @@ statuscode.innerText = results[i]["statecode@OData.Community.Display.V1.Formatte
 ```
 Third, of course, we need to work with the styles. So that this table looks like the native one.
 
-Your ideas and wishes will be warmly welcomed!
+**Despite the fact that the task was real, the component itself was made for educational purposes.**
+**If you decide to use this component, please use it at your own risk!**
+
+_Your ideas and wishes will be warmly welcomed!_
 
