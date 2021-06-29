@@ -1,9 +1,16 @@
 # PCFGridActivity
+
 A custom component that allows you to see activities for custom and native related entities. Mimics Rollup Relationship behavior.
+Suppose we have an entity of orders.
+This entity has a number of activities (Order Task 1, Order Task 2, Order Email 1 etc.).
+In addition to activities, a child entity of Items is connected to the Order entity. Each of the Items also have their own activities (Item 1 Task 1, Item 2 Task 1 etc.).
+The customer set a task: I want to see all the activities at the Order level. In other words, in the Order form, I want to see both the activities of the order itself and its items.
 
 ![image](https://user-images.githubusercontent.com/86048404/122371370-7f0c6800-cf68-11eb-811d-d80a91f0fa1d.png)
 
-Unfortunately, these results cannot be achieved by standard means, so you have to reinvent the wheel. In this case - our own control, which allows you to display all the necessary activities from any related entities.
+Of course, we can cook up an SSRS report, but we're not looking for easy ways, are we? :)
+
+In this case - our own control, which allows us to display all the necessary activities from any related entities.
 
 ![image](https://user-images.githubusercontent.com/86048404/122372201-28ebf480-cf69-11eb-8a82-ab5fb497b4bf.png)
 
