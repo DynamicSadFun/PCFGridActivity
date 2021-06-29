@@ -37,7 +37,7 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 	}
 
 	private loadDone(): void {
-		// that's a crap. Need to fix it.
+		// This problem arises due to the fact that first the native data is loaded, and then the child data is loaded. Need to fix it.
 		let table;
 		if ( $.fn.dataTable.isDataTable( '#activitiesTable' ) ) {
 			$("#activitiesTable").dataTable().fnDestroy();
@@ -85,16 +85,15 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 			for (let currentRecordId of gridParam.sortedRecordIds) {
 				let entityReference = <any>gridParam.records[currentRecordId].getNamedReference();
 				let tableRecordRow: HTMLTableRowElement = document.createElement("tr");
-				//tableRecordRow.addEventListener("click", this.onRowClick.bind(this));
 				tableRecordRow.addEventListener("click", instance.clickActivity.bind(instance));
-				// pizdec:
+				// the nuances of working with the design of links to records:
 				// https://powerusers.microsoft.com/t5/Power-Apps-Pro-Dev-ISV/Table-Grid-Dataset-Component-Sample/m-p/397886#M1174
 				tableRecordRow.setAttribute(RowRecordId, entityReference.id);
 				tableRecordRow.setAttribute(RowEntityName, entityReference.entityType);
 				columnsOnView.forEach(function (columnItem, index) {
 					let tableRecordCell = document.createElement("td");
 					// Currently there is a bug in canvas preventing retrieving value using alias for property set columns.
-					// In this sample, we use the column's actual column name to retrieve the formatted value to work around the issue
+					// In this component, I use the column's actual column name to retrieve the formatted value to work around the issue
 					// columnItem.alias should be used after bug is addressed
 					tableRecordCell.innerText = gridParam.records[currentRecordId].getFormattedValue(columnItem.name);
 					tableRecordRow.appendChild(tableRecordCell);
@@ -117,6 +116,7 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 		let fields = columnsOnView.map(x => x['name']).toString().replace("regardingobjectid,",""); // except regarding for correct oData-query
 		arrayEntity.forEach((entityName, index) => {
 			let regarding = "regardingobjectid_";
+			// TODO: Think about the brevity and compactness of the query, as well as auto-extracting metadata.
 			let query = "?$select=" + fields + 
 						"&$expand=" + regarding + entityName.trim() + 
 						"($select=" + arrayName[index].trim() + 
