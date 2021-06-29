@@ -17,7 +17,7 @@ Result:
 And this one (with search):
 ![image](https://user-images.githubusercontent.com/86048404/123816864-58ebae00-d900-11eb-99f1-78ad1d93aaa3.png)
 
-Unfortunately, this PCF has cons (knows issues) and TODO-tasks.
+Unfortunately, this PCF has cons (known issues) and TODO-tasks.
 Firstly, native export in Excel allows you to download only those records that belong to the parent, because it operates with `context.parameters.dataSet`.
 Secondly, I would like to add universality to the code. In the `createTableBody` method, data is being built and I want the control to understand itself where which column is, where is what data type and automatically build the table, not via:
 ```
