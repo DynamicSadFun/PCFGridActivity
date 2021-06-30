@@ -1,6 +1,6 @@
 # PCFGridActivity
 
-A custom component that allows you to see activities for custom and native related entities. Mimics Rollup Relationship behavior.
+A custom component that allows you to see activities for custom and native related entities. Simulates the behavior of a Rollup Relationship.
 Suppose we have an entity of orders.
 This entity has a number of activities (Order Task 1, Order Task 2, Order Email 1 etc.).
 In addition to activities, a child entity of Items is connected to the Order entity. Each of the Items also have their own activities (Item 1 Task 1, Item 2 Task 1 etc.).
