@@ -1,2 +1,0 @@
-C:\Users\ValentinGasenko\Desktop\work\PCF GridActivity\obj\Debug\PCF GridActivity.pcfprojAssemblyReference.cache
-C:\Users\ValentinGasenko\Desktop\work\PCF GridActivity\obj\Debug\PCF GridActivity.pcfproj.CoreCompileInputs.cache
