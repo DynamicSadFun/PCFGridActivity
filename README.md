@@ -19,7 +19,7 @@ In this case - our own control, which allows us to display all the necessary act
 There is an awesome components involved in this control - datatables.css and datatables.js (https://datatables.net/).
 It is allows you to pre-configure sorting and search.
 Result:
-![image](https://user-images.githubusercontent.com/86048404/123816405-f692ad80-d8ff-11eb-9d45-4b781ec112d4.png)
+![image](https://user-images.githubusercontent.com/86048404/123954458-1635de80-d9b1-11eb-9cbf-6a89cb7995e1.png)
 
 And this one (with search):
 ![image](https://user-images.githubusercontent.com/86048404/123816864-58ebae00-d900-11eb-99f1-78ad1d93aaa3.png)
