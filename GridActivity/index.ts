@@ -54,11 +54,8 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 		let table;
 		if ( $.fn.dataTable.isDataTable(activitiesTable) ) {
 			$(activitiesTable).dataTable().fnDestroy();
-			this.tableStyleInitialize(table);
 		}
-		else {
-			this.tableStyleInitialize(table);
-		}
+		this.tableStyleInitialize(table);
 	}
 
 	private createTD(text: string, tableRow: HTMLTableRowElement): void {
