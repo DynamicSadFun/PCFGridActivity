@@ -7,6 +7,9 @@ type DataSet = ComponentFramework.PropertyTypes.DataSet;
 // Define const here
 const RowRecordId: string = "rowRecId";
 const RowEntityName: string = "entityName";
+const activitiesTable: string = "#activitiesTable";
+const timeOutForLoading: number = 100;
+const pageSize: number = 5000;
 var $  = require( 'jquery' );
 
 export class GridActivity implements ComponentFramework.StandardControl<IInputs, IOutputs> {
@@ -36,28 +39,32 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 		return columns;
 	}
 
+	private tableStyleInitialize(table: any): void {
+		table = $(activitiesTable).DataTable({
+			paging: true,
+			scrollX: true,
+			lengthChange : true,
+			searching: true,
+			ordering: true
+		});
+	}
+
 	private loadDone(): void {
 		// This problem arises due to the fact that first the native data is loaded, and then the child data is loaded. Need to fix it.
 		let table;
-		if ( $.fn.dataTable.isDataTable( '#activitiesTable' ) ) {
-			$("#activitiesTable").dataTable().fnDestroy();
-			table = $('#activitiesTable').DataTable({
-					paging: true,
-					scrollX: true,
-					lengthChange : true,
-					searching: true,
-					ordering: true
-				});
+		if ( $.fn.dataTable.isDataTable(activitiesTable) ) {
+			$(activitiesTable).dataTable().fnDestroy();
+			this.tableStyleInitialize(table);
 		}
 		else {
-			table = $('#activitiesTable').DataTable({
-					paging: true,
-					scrollX: true,
-					lengthChange : true,
-					searching: true,
-					ordering: true
-				});
+			this.tableStyleInitialize(table);
 		}
+	}
+
+	private createTD(text: string, tableRow: HTMLTableRowElement): void {
+		let td: any = document.createElement("td");
+		td.innerText = text;
+		tableRow.appendChild(td);
 	}
 
 	private createTableHeader(columnsOnView: DataSetInterfaces.Column[]): HTMLTableSectionElement {
@@ -74,13 +81,85 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 		return tableHeader;
 	}
 
+	private getOtherRecords(instance: GridActivity, columnsOnView: DataSetInterfaces.Column[], tableBody: HTMLTableSectionElement) {
+		let param: IInputs = this._contextObj.parameters;
+		let results = [] as any;
+		let formatValue = "@OData.Community.Display.V1.FormattedValue";
+
+		var arrayEntity = param.entityName.raw!.split(',');
+		var arrayLookup = param.lookupName.raw!.split(',');
+		var arrayName = param.parentName.raw!.split(',');
+
+		let entityLookupCondition = arrayEntity.length != arrayLookup.length;
+		let entityArrayNameCondition = arrayEntity.length != arrayName.length;
+		let lookupArrayNameCondition = arrayLookup.length != arrayName.length;
+
+		if(entityLookupCondition || entityArrayNameCondition || lookupArrayNameCondition) {
+			throw new Error("The array of entities must match the number of elements with the array of fields and array of parent names!");
+		}
+
+		// filter for Active rows
+		let stateCodeFilter = param.ActiveOnly.raw == "1" ? "(statecode eq 0) and " : "";
+		let fields = columnsOnView.map(x => x['name']).toString().replace("regardingobjectid,",""); // except regarding for correct oData-query
+		arrayEntity.forEach((entityName, index) => {
+			let regarding = "regardingobjectid_";
+			// TODO: Think about the brevity and compactness of the query, as well as auto-extracting metadata.
+			let query = "?$select=" + fields + 
+						"&$expand=" + regarding + entityName.trim() + 
+						"($select=" + arrayName[index].trim() + 
+						")&$filter=" + stateCodeFilter + "(" + regarding + entityName.trim() + 
+						"/_" + arrayLookup[index].trim() + 
+						"_value eq " + (<any>this._contextObj.mode).contextInfo.entityId + ")";
+			
+			this._contextObj.webAPI.retrieveMultipleRecords("activitypointer", query).then(
+				function success(arrayRes) {
+					results = arrayRes.entities;//.filter((k: any) => k["regardingobjectid_" + entityName.trim() + ""] != null);
+					for (var i = 0; i < results.length; i++) {
+						var currentResult = results[i];
+						let tableRecordRow: HTMLTableRowElement = document.createElement("tr");
+						tableRecordRow.addEventListener("click", instance.clickActivity.bind(instance));
+						tableRecordRow.setAttribute(RowRecordId, currentResult["activityid"]);
+						tableRecordRow.setAttribute(RowEntityName, currentResult["activitytypecode"]);
+								
+						try {
+							let dueDate = currentResult["scheduledend"] != null ?
+										(new Date(currentResult["scheduledend"]).toLocaleString()).replace(',', '') :
+										"";
+							instance.createTD(currentResult["subject"], tableRecordRow);							
+							instance.createTD(currentResult[regarding.concat(entityName.trim())][arrayName[index].trim()], tableRecordRow);
+							instance.createTD(currentResult["activitytypecode".concat(formatValue)], tableRecordRow);					
+							instance.createTD(currentResult["statecode".concat(formatValue)], tableRecordRow);					
+							instance.createTD(currentResult["prioritycode".concat(formatValue)], tableRecordRow);	
+							instance.createTD(dueDate, tableRecordRow);	
+							instance.createTD(currentResult["instancetypecode".concat(formatValue)], tableRecordRow);	
+							instance.createTD(currentResult["community"], tableRecordRow);	
+							
+							// done
+							tableBody.appendChild(tableRecordRow);
+						}
+						catch(error) {
+							alert(error);
+						}
+					}
+				},	
+				function(error) {
+					alert(error.message);
+				}
+			).then(
+				function style() {
+					setTimeout(() => instance.loadDone(), timeOutForLoading);
+				}
+			);
+		});
+	}
+
 	private createTableBody(columnsOnView: DataSetInterfaces.Column[], gridParam: DataSet): HTMLTableSectionElement {
 		let instance: GridActivity = this;
-		let results = [] as any;
 		let tableBody: HTMLTableSectionElement = document.createElement("tbody");
 		tableBody.id = "activitiesTbody";
 		
-		if (gridParam.sortedRecordIds.length > 0) {
+		let sortedCondition = gridParam.sortedRecordIds.length > 0;
+		if (sortedCondition) {
 			// get only top 10
 			for (let currentRecordId of gridParam.sortedRecordIds) {
 				let entityReference = <any>gridParam.records[currentRecordId].getNamedReference();
@@ -102,94 +181,7 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 			}
 		}
 
-		var arrayEntity = this._contextObj.parameters.entityName.raw!.split(',');
-		var arrayLookup = this._contextObj.parameters.lookupName.raw!.split(',');
-		var arrayName = this._contextObj.parameters.parentName.raw!.split(',');
-		if(arrayEntity.length != arrayLookup.length ||
-		   arrayEntity.length != arrayName.length	||
-		   arrayLookup.length != arrayName.length) {
-			throw new Error("The array of entities must match the number of elements with the array of fields and array of parent names!");
-		}
-
-		// filter for Active rows
-		let stateCodeFilter = this._contextObj.parameters.ActiveOnly.raw == "1" ? "(statecode eq 0) and " : "";
-		let fields = columnsOnView.map(x => x['name']).toString().replace("regardingobjectid,",""); // except regarding for correct oData-query
-		arrayEntity.forEach((entityName, index) => {
-			let regarding = "regardingobjectid_";
-			// TODO: Think about the brevity and compactness of the query, as well as auto-extracting metadata.
-			let query = "?$select=" + fields + 
-						"&$expand=" + regarding + entityName.trim() + 
-						"($select=" + arrayName[index].trim() + 
-						")&$filter=" + stateCodeFilter + "(" + regarding + entityName.trim() + 
-						"/_" + arrayLookup[index].trim() + 
-						"_value eq " + (<any>this._contextObj.mode).contextInfo.entityId + ")";
-			
-			this._contextObj.webAPI.retrieveMultipleRecords("activitypointer", query).then(
-				function success(arrayRes) {
-					results = arrayRes.entities;//.filter((k: any) => k["regardingobjectid_" + entityName.trim() + ""] != null);
-					for (var i = 0; i < results.length; i++) {
-						let tableRecordRow: HTMLTableRowElement = document.createElement("tr");
-						tableRecordRow.addEventListener("click", instance.clickActivity.bind(instance));
-						tableRecordRow.setAttribute(RowRecordId, results[i]["activityid"]);
-						tableRecordRow.setAttribute(RowEntityName, results[i]["activitytypecode"]);
-								
-						try {
-							let subject = document.createElement("td");
-							subject.innerText = results[i]["subject"];
-							tableRecordRow.appendChild(subject);
-							
-							let regar = document.createElement("td");
-							regar.innerText = results[i][regarding + entityName.trim()][arrayName[index].trim()];
-							tableRecordRow.appendChild(regar);
-							
-							let type = document.createElement("td");
-							type.innerText = results[i]["activitytypecode@OData.Community.Display.V1.FormattedValue"];
-							tableRecordRow.appendChild(type);
-							
-							let statuscode = document.createElement("td");
-							statuscode.innerText = results[i]["statecode@OData.Community.Display.V1.FormattedValue"];
-							tableRecordRow.appendChild(statuscode);
-							
-							// priority                       
-							let priority = document.createElement("td");  
-							priority.innerText = results[i]["prioritycode@OData.Community.Display.V1.FormattedValue"];
-							tableRecordRow.appendChild(priority);
-	
-							// due
-							let due = document.createElement("td");                       
-							let dueDate = results[i]["scheduledend"] != null ?
-										(new Date(results[i]["scheduledend"]).toLocaleString()).replace(',', '') :
-										"";
-							due.innerText = dueDate; 
-							tableRecordRow.appendChild(due);
-	
-							// recurring                       
-							let recur = document.createElement("td");  
-							recur.innerText = results[i]["instancetypecode@OData.Community.Display.V1.FormattedValue"];
-							tableRecordRow.appendChild(recur);
-	
-							// community                       
-							let community = document.createElement("td");  
-							community.innerText = results[i]["community"];
-							tableRecordRow.appendChild(community);
-	
-							tableBody.appendChild(tableRecordRow);
-						}
-						catch(error) {
-							alert(error);
-						}
-					}
-				},	
-				function(error) {
-					alert(error.message);
-				}
-			).then(
-				function style() {
-					setTimeout(() => instance.loadDone(), 100);
-				}
-			);
-		});
-
+		this.getOtherRecords(instance, columnsOnView, tableBody);
 		return tableBody;
 	}
 
@@ -220,25 +212,26 @@ export class GridActivity implements ComponentFramework.StandardControl<IInputs,
 	}
 
 	public DrawTable(context: ComponentFramework.Context<IInputs>): void {
-		if (!context.parameters.dataSet.loading) {
+		let dataSet = context.parameters.dataSet;
+		if (!dataSet.loading) {
 			// Get sorted columns on View
 			let columnsOnView = this.getSortedColumnsOnView(context);
 			if (!columnsOnView || columnsOnView.length === 0) {
 				return;
 			}
-			if (context.parameters.dataSet.paging != null) {
+			if (dataSet.paging != null) {
 				// be default this function get only top 10 rows, we need this one:
 				// https://www.inogic.com/blog/2019/09/get-all-the-records-of-dataset-grid-control-swiftly/
 				// https://powerusers.microsoft.com/t5/Power-Apps-Pro-Dev-ISV/BUG-Dataset-paging-problem/td-p/341586
-				context.parameters.dataSet.paging.setPageSize(5000); // set any count for showing your rows
-				context.parameters.dataSet.paging.loadNextPage();
+				dataSet.paging.setPageSize(pageSize); // set any count for showing your rows
+				dataSet.paging.loadNextPage();
 				// When new data is received, it needs to first remove the table element, allowing it to properly render a table with updated data
 				// This only needs to be done on elements having child elements which is tied to data received from canvas/model 
 				while (this._htmlTable.firstChild) {
 					this._htmlTable.removeChild(this._htmlTable.firstChild);
 				}
 				this._htmlTable.appendChild(this.createTableHeader(columnsOnView));
-				this._htmlTable.appendChild(this.createTableBody(columnsOnView, context.parameters.dataSet)); 
+				this._htmlTable.appendChild(this.createTableBody(columnsOnView, dataSet)); 
 			}
 		}
 	}
